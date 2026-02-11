@@ -88,17 +88,17 @@ const RuntimeCreator* MNNGetExtraRuntimeCreator(MNNForwardType type) {
 
     auto& gExtraCreator = GetExtraCreator();
 
-    // Optional strict mode: disallow creating CPU runtime/creator when running OpenCL-only.
-    // This is used to ensure actual computation doesn't silently fall back to CPU.
-    // Allowed host-side tensor copies may still happen outside runtime creation.
+    // Optional strict mode: warn when CPU runtime is requested.
+    // NOTE: Disabling CPU runtime creation is unsafe because MNN may rely on a CPU backup backend
+    // even when the main compute backend is OpenCL. Use MNN_STRICT_OPENCL_NO_CPU_OP to forbid
+    // per-op fallback instead.
     static int sStrictNoCpu = -1;
     if (sStrictNoCpu < 0) {
         const char* v = ::getenv("MNN_STRICT_NO_CPU_RUNTIME");
         sStrictNoCpu = (v && v[0] && v[0] != '0') ? 1 : 0;
     }
     if (sStrictNoCpu == 1 && type == MNN_FORWARD_CPU) {
-        MNN_PRINT("[MNN][STRICT] CPU runtime creation is disabled (MNN_STRICT_NO_CPU_RUNTIME=1).\n");
-        return nullptr;
+        MNN_PRINT("[MNN][STRICT] CPU runtime requested (MNN_STRICT_NO_CPU_RUNTIME=1). Not disabling; use MNN_STRICT_OPENCL_NO_CPU_OP to forbid fallback.\n");
     }
 
     auto iter           = gExtraCreator.find(type);

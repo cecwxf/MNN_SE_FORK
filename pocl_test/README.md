@@ -49,12 +49,16 @@ This will:
 
 ### Strict validation (recommended)
 
-To ensure there is **no silent CPU fallback** during testing, export:
+To ensure there is **no silent CPU fallback** during testing:
+
+- **Recommended**: forbid per-op fallback to CPU:
 
 ```bash
-export MNN_STRICT_NO_CPU_RUNTIME=1
 export MNN_STRICT_OPENCL_NO_CPU_OP=1
 ```
+
+- Do **not** rely on disabling CPU runtime entirely. MNN may still need a CPU backup runtime even when the main compute backend is OpenCL.
+  The `MNN_STRICT_NO_CPU_RUNTIME` switch is kept only as a diagnostic warning.
 
 ---
 
