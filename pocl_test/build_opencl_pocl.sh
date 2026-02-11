@@ -24,7 +24,7 @@ cmake "${ROOT_DIR}" \
   -DMNN_BUILD_TOOLS=ON \
   -DMNN_BUILD_CONVERTER=OFF \
   -DMNN_BUILD_DEMO=OFF \
-  -DMNN_USE_SYSTEM_LIB=OFF \
+  -DMNN_USE_SYSTEM_LIB=ON \
   -DMNN_BUILD_POCL_TEST=ON
 
 ninja -j"$(nproc)" MNN pocl_smoke run_mnn_opencl run_mnn_opencl_model
