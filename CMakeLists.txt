@@ -36,7 +36,7 @@ if(WIN32)
 endif()
 
 # build options
-option(MNN_USE_SYSTEM_LIB "For opencl and vulkan, use system lib or use dlopen" OFF)
+option(MNN_USE_SYSTEM_LIB "For opencl and vulkan, use system lib or use dlopen" ON)
 option(MNN_BUILD_HARD "Build -mfloat-abi=hard or not" OFF)
 option(MNN_BUILD_SHARED_LIBS "MNN build shared or static lib" ON)
 option(MNN_WIN_RUNTIME_MT "MNN use /MT on Windows dll" OFF)
