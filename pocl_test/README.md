@@ -83,7 +83,7 @@ Create `tiny_matmul_add.onnx` using Python + onnx (pseudo example):
 # then export as ONNX
 ```
 
-(If you want, we can add a concrete python script here; keeping this repo minimal for now.)
+A concrete generator script is provided: `pocl_test/gen_tiny_matmul_add_onnx.py`.
 
 ---
 
