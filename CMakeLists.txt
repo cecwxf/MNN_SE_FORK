@@ -1070,3 +1070,9 @@ ENDIF()
 if (MNN_JNI)
     add_subdirectory(${CMAKE_CURRENT_LIST_DIR}/source/jni/)
 endif()
+
+# --- PoCL/OpenCL validation demos (developer-only) ---
+option(MNN_BUILD_POCL_TEST "Build PoCL/OpenCL validation demos under pocl_test" OFF)
+if (MNN_BUILD_POCL_TEST)
+  add_subdirectory(pocl_test)
+endif()
