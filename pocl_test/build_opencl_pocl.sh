@@ -32,11 +32,11 @@ ninja -j"$(nproc)" MNN pocl_smoke run_mnn_opencl run_mnn_opencl_model
 export LD_LIBRARY_PATH="${BUILD_DIR}:${LD_LIBRARY_PATH:-}"
 
 echo "\n[Run] pocl_smoke" 
-"${BUILD_DIR}/pocl_smoke" || true
+"${BUILD_DIR}/pocl_test/pocl_smoke" || true
 
 echo "\n[Run] run_mnn_opencl_model" 
 if [[ -f "${ROOT_DIR}/tiny_matmul_add.mnn" ]]; then
-  "${BUILD_DIR}/run_mnn_opencl_model" "${ROOT_DIR}/tiny_matmul_add.mnn" || true
+  "${BUILD_DIR}/pocl_test/run_mnn_opencl_model" "${ROOT_DIR}/tiny_matmul_add.mnn" || true
 else
   echo "Missing ${ROOT_DIR}/tiny_matmul_add.mnn (optional). See pocl_test/README.md to generate it."
 fi
