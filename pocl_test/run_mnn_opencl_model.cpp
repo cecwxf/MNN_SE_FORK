@@ -1,9 +1,16 @@
 #include <MNN/Interpreter.hpp>
 #include <MNN/Tensor.hpp>
 #include <iostream>
+#include <dlfcn.h>
 #include <memory>
 
 int main() {
+    // Load OpenCL backend plugin (built as libMNN_CL.so) so RuntimeCreator(type=3) is registered.
+    void* h = dlopen("libMNN_CL.so", RTLD_NOW | RTLD_GLOBAL);
+    if (!h) {
+        std::cerr << "[pocl_test] dlopen(libMNN_CL.so) failed: " << dlerror() << std::endl;
+    }
+
     auto net = std::unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile("tiny_matmul_add.mnn"));
     if (!net) return 1;
 

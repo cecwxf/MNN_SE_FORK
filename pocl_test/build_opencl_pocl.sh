@@ -24,12 +24,11 @@ cmake "${ROOT_DIR}" \
   -DMNN_BUILD_TOOLS=ON \
   -DMNN_BUILD_CONVERTER=OFF \
   -DMNN_BUILD_DEMO=OFF \
-  -DMNN_USE_SYSTEM_LIB=ON \
   -DMNN_BUILD_POCL_TEST=ON
 
-ninja -j"$(nproc)" MNN pocl_smoke run_mnn_opencl run_mnn_opencl_model
+ninja -j"$(nproc)" MNN MNN_CL pocl_smoke run_mnn_opencl run_mnn_opencl_model
 
-export LD_LIBRARY_PATH="${BUILD_DIR}:${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="${BUILD_DIR}/source/backend/opencl:${BUILD_DIR}:${LD_LIBRARY_PATH:-}"
 
 echo "\n[Run] pocl_smoke" 
 "${BUILD_DIR}/pocl_test/pocl_smoke" || true
