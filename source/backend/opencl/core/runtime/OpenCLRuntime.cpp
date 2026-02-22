@@ -277,6 +277,12 @@ OpenCLRuntime::OpenCLRuntime(int platformSize, int platformId, int deviceId, voi
             mFirstGPUDevicePtr->getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &mMaxLocalMemSize);
             mMaxWorkGroupSize = mFirstGPUDevicePtr->getInfo<CL_DEVICE_MAX_WORK_GROUP_SIZE>();
 
+            {
+                cl_bool imageSupport = CL_FALSE;
+                auto imageRes = mFirstGPUDevicePtr->getInfo(CL_DEVICE_IMAGE_SUPPORT, &imageSupport);
+                MNN_CHECK_CL_SUCCESS(imageRes, "CL_DEVICE_IMAGE_SUPPORT");
+                mIsSupportedImage = (imageRes == CL_SUCCESS && imageSupport == CL_TRUE);
+            }
 
             {
                 cl_device_fp_config fpConfig;
@@ -325,13 +331,17 @@ OpenCLRuntime::OpenCLRuntime(int platformSize, int platformId, int deviceId, voi
         return;
     }
     {
-        // Init info
-        size_t max_height, max_width;
-        res = mFirstGPUDevicePtr->getInfo(CL_DEVICE_IMAGE2D_MAX_HEIGHT, &max_height);
-        MNN_CHECK_CL_SUCCESS(res, "image2Dsize");
-        res = mFirstGPUDevicePtr->getInfo(CL_DEVICE_IMAGE2D_MAX_WIDTH, &max_width);
-        MNN_CHECK_CL_SUCCESS(res, "image2Dsize");
-        mMaxImageSize = {max_height, max_width};
+        // Init image info
+        if (mIsSupportedImage) {
+            size_t max_height = 0, max_width = 0;
+            res = mFirstGPUDevicePtr->getInfo(CL_DEVICE_IMAGE2D_MAX_HEIGHT, &max_height);
+            MNN_CHECK_CL_SUCCESS(res, "image2Dsize");
+            res = mFirstGPUDevicePtr->getInfo(CL_DEVICE_IMAGE2D_MAX_WIDTH, &max_width);
+            MNN_CHECK_CL_SUCCESS(res, "image2Dsize");
+            mMaxImageSize = {max_height, max_width};
+        } else {
+            mMaxImageSize = {0, 0};
+        }
     }
     do {
         int dims = 3;
@@ -405,6 +415,10 @@ std::vector<size_t> OpenCLRuntime::getMaxImage2DSize() {
 
 bool OpenCLRuntime::isSupportedFP16() const {
     return mIsSupportedFP16;
+}
+
+bool OpenCLRuntime::isSupportedImage() const {
+    return mIsSupportedImage;
 }
 
 bool OpenCLRuntime::isDeviceSupportedLowPower() const {
