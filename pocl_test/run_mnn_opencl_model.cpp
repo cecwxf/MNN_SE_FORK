@@ -1,23 +1,30 @@
 #include <MNN/Interpreter.hpp>
 #include <MNN/Tensor.hpp>
+#include <MNN/MNNForwardType.h>
 #include <iostream>
 #include <dlfcn.h>
 #include <memory>
+#include <cmath>
 
-int main() {
+int main(int argc, char** argv) {
+    const char* model = (argc > 1) ? argv[1] : "tiny_matmul_add.mnn";
+
     // Load OpenCL backend plugin (built as libMNN_CL.so) so RuntimeCreator(type=3) is registered.
     void* h = dlopen("libMNN_CL.so", RTLD_NOW | RTLD_GLOBAL);
     if (!h) {
         std::cerr << "[pocl_test] dlopen(libMNN_CL.so) failed: " << dlerror() << std::endl;
     }
 
-    auto net = std::unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile("tiny_matmul_add.mnn"));
-    if (!net) return 1;
+    auto net = std::unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile(model));
+    if (!net) {
+        std::cerr << "failed to load model: " << model << "\n";
+        return 1;
+    }
 
     MNN::ScheduleConfig cfg;
     cfg.type = MNN_FORWARD_OPENCL;
-    cfg.backupType = MNN_FORWARD_CPU; // keep default; strict mode handled inside pipeline
-    cfg.numThread = 2;
+    cfg.backupType = MNN_FORWARD_CPU; // strict mode handled by MNN_STRICT_OPENCL_NO_CPU_OP
+    cfg.numThread = MNN_GPU_TUNING_WIDE | MNN_GPU_MEMORY_BUFFER; // force BUFFER path on image-unsupported devices
 
     MNN::BackendConfig bcfg;
     bcfg.precision = MNN::BackendConfig::Precision_Normal;
@@ -45,5 +52,14 @@ int main() {
     output->copyToHostTensor(hostOut.get());
     const float* y = hostOut->host<float>();
     std::cout << "y=[" << y[0] << "," << y[1] << "," << y[2] << "]\n";
-    return 0;
+
+    const float expect[3] = {6.5f, 6.75f, 9.0f};
+    bool ok = true;
+    for (int i = 0; i < 3; ++i) {
+        if (std::fabs(y[i] - expect[i]) > 1e-3f) {
+            ok = false;
+        }
+    }
+    std::cout << (ok ? "verify=OK" : "verify=FAIL") << "\n";
+    return (code == MNN::NO_ERROR && ok) ? 0 : 3;
 }
