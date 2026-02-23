@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     MNN::ScheduleConfig cfg;
     cfg.type = MNN_FORWARD_OPENCL;
     cfg.backupType = MNN_FORWARD_CPU; // strict mode handled by MNN_STRICT_OPENCL_NO_CPU_OP
-    cfg.numThread = MNN_GPU_TUNING_WIDE; // don't force memory mode; backend auto-fallback handles image-unsupported devices
+    cfg.numThread = MNN_GPU_TUNING_FAST; // don't force memory mode; backend auto-fallback handles image-unsupported devices
 
     MNN::BackendConfig bcfg;
     bcfg.precision = MNN::BackendConfig::Precision_Normal;
