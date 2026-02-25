@@ -203,3 +203,35 @@ MNN refers to the following projects:
 - [libjpeg](https://github.com/libjpeg-turbo/libjpeg-turbo)
 - [opencv](https://github.com/opencv/opencv)
 - [onnxruntime](https://github.com/microsoft/onnxruntime)
+
+## MNN + PoCL + Vortex(simx) Quick Validation (cecwxf fork)
+
+This fork includes a stable simx test flow under `pocl_test/`.
+
+### One-shot test
+
+```bash
+cd ~/.openclaw/workspace/mnn
+bash ~/.openclaw/workspace/scripts/run_mnn_pocl_vortex_tests.sh
+```
+
+### Manual flow (recommended for debugging)
+
+```bash
+cd ~/.openclaw/workspace/mnn
+# clean possibly polluted env
+unset POCL_VORTEX_CFLAGS POCL_VORTEX_CODEGEN_FEATURES POCL_VORTEX_FINALIZE_CFLAGS \
+      POCL_VORTEX_LDFLAGS POCL_VORTEX_BINTOOL POCL_CACHE_DIR POCL_DEBUG
+
+source ./pocl_test/env_vortex_simx.sh run1
+export POCL_VORTEX_CFLAGS='-target-feature +m -target-feature +f'
+export POCL_VORTEX_CODEGEN_FEATURES='+m,+f,+zicsr,-c'
+
+# vecadd
+timeout 120 ~/.openclaw/workspace/pocl/build-vx-simx4/examples/vecadd/vecadd
+
+# MNN strict matrix (add/relu/reshape/mul1)
+./pocl_test/run_tiny_matrix_simx.sh
+```
+
+Expected: vecadd prints `OK`, and all 4 tiny models return `RC=0`.
