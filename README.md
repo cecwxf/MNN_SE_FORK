@@ -204,34 +204,42 @@ MNN refers to the following projects:
 - [opencv](https://github.com/opencv/opencv)
 - [onnxruntime](https://github.com/microsoft/onnxruntime)
 
-## MNN + PoCL + Vortex(simx) Quick Validation (cecwxf fork)
+## Unified Vortex(simx) Build/Test Entry
 
-This fork includes a stable simx test flow under `pocl_test/`.
+Use the same 3-step flow across MNN/PoCL/Vortex repos:
 
-### One-shot test
+1. Build Vortex runtime libs (`libvortex.so`, `libvortex-simx.so`, `libsimx.so`)
+2. Build PoCL `build-vx-simx4` (Debug)
+3. Run MNN+PoCL+Vortex validation script
+
+### Quick run
 
 ```bash
+# 1) Vortex runtime
+cd ~/.openclaw/workspace/vortex
+make -C third_party -j4
+make -C runtime simx -j4
+
+# 2) PoCL (Debug + vortex)
+cmake -S ~/.openclaw/workspace/pocl -B ~/.openclaw/workspace/pocl/build-vx-simx4 \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DLLVM_DIR=/usr/lib64/cmake/llvm \
+  -DENABLE_LLVM=ON -DENABLE_VORTEX=ON -DENABLE_LOADABLE_DRIVERS=ON \
+  -DENABLE_HOST_CPU_DEVICES=OFF -DEXTRA_OCL_TARGETS=host \
+  -DKERNELLIB_HOST_CPU_VARIANTS=generic-rv32 \
+  -DOCL_KERNEL_TARGET=riscv32-unknown-elf -DOCL_KERNEL_TARGET_CPU=generic-rv32 \
+  -DEXTRA_HOST_CLANG_FLAGS="--target=riscv32-unknown-elf -march=rv32imafdc -mabi=ilp32d" \
+  -DVORTEX_DRIVER_INC=~/.openclaw/workspace/vortex/runtime/include \
+  -DVORTEX_DRIVER_LIB=~/.openclaw/workspace/vortex/runtime/libvortex.so
+cmake --build ~/.openclaw/workspace/pocl/build-vx-simx4 -j4 --target \
+  kernel_host_generic-rv32 pocl pocl-devices-vortex vecadd
+
+# 3) Test
 cd ~/.openclaw/workspace/mnn
 bash ~/.openclaw/workspace/scripts/run_mnn_pocl_vortex_tests.sh
 ```
 
-### Manual flow (recommended for debugging)
-
-```bash
-cd ~/.openclaw/workspace/mnn
-# clean possibly polluted env
-unset POCL_VORTEX_CFLAGS POCL_VORTEX_CODEGEN_FEATURES POCL_VORTEX_FINALIZE_CFLAGS \
-      POCL_VORTEX_LDFLAGS POCL_VORTEX_BINTOOL POCL_CACHE_DIR POCL_DEBUG
-
-source ./pocl_test/env_vortex_simx.sh run1
-export POCL_VORTEX_CFLAGS='-target-feature +m -target-feature +f'
-export POCL_VORTEX_CODEGEN_FEATURES='+m,+f,+zicsr,-c'
-
-# vecadd
-timeout 120 ~/.openclaw/workspace/pocl/build-vx-simx4/examples/vecadd/vecadd
-
-# MNN strict matrix (add/relu/reshape/mul1)
-./pocl_test/run_tiny_matrix_simx.sh
-```
-
-Expected: vecadd prints `OK`, and all 4 tiny models return `RC=0`.
+Expected pass criteria:
+- `clinfo` shows `Vortex Open-Source GPU`
+- `vecadd` prints `OK`
+- `run_tiny_matrix_simx.sh` has 4/4 models with `RC=0`
