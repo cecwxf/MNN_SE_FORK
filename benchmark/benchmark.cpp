@@ -38,6 +38,7 @@
  TODOs:
  1. dynamically get CPU related info.
  2. iOS support
+ 3. Android support
  */
 struct Model {
     std::string name;
