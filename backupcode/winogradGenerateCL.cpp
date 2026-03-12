@@ -2,7 +2,7 @@
 //  winogradGenerateCL.cpp
 //  MNN
 //
-//  Created by MNN on 2019/01/22.
+//  Created by MNN on  2019/01/22.
 //  Copyright © 2018, Alibaba Group Holding Limited
 //
 
