@@ -8,7 +8,7 @@
 #   - x86_linux
 platform="all"
 
-# Option to build with opencl.
+# MNN+POCL Option to build with opencl.
 use_opencl=0
 
 # Option to build with opengl.
