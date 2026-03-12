@@ -134,7 +134,7 @@ int main(int argc, const char* argv[]) {
             }
         }
 
-        // M = BT*S
+        // M = BT*S ??
         auto bFloat = b->host<float>();
         for (int y = 0; y < alpha; ++y) {
             for (int x = 0; x < alpha; ++x) {
