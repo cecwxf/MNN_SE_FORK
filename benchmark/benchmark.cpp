@@ -2,7 +2,7 @@
 //  benchmark.cpp
 //  MNN
 //
-//  Created by MNN on wxf 2019/01/31.
+//  Created by MNN on 2019/01/31.
 //  Copyright © 2018, Alibaba Group Holding Limited
 //
 
