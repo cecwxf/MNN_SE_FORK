@@ -1583,6 +1583,10 @@ void OpenCLBackend::setGpuMode(const int cl_mode_num) {
             mMemType = IMAGE;
         }
     }
+    if (mMemType == IMAGE && !mOpenCLRuntime->isSupportedImage()) {
+        MNN_PRINT("OpenCL device has no image support, fallback to BUFFER mode.\n");
+        mMemType = BUFFER;
+    }
     if(totalSet > 1) {
         MNN_PRINT("set both BUFFER and IMAGE mode is not permitted, please check cl_mode:%x！\n", cl_mode_num);
     }

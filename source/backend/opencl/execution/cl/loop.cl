@@ -234,6 +234,7 @@ __kernel void batch_matmul(__private int global_dim0, __private int global_dim1,
     }
 }
 
+#ifdef __IMAGE_SUPPORT__
 __kernel void tile(__private int global_dim0, __private int global_dim1, __private int global_dim2,
                         __read_only image2d_t input,
                         __global OUTPUT_TYPE* output,
@@ -302,6 +303,7 @@ __kernel void pack(__private int global_dim0, __private int global_dim1, __priva
         WI_DATA(output, (int2)(pos.y * width + w, pos.z * height + h), value);
     }
 }
+#endif
 
 #ifndef UNARY_OPERATOR
     #define UNARY_OPERATOR in

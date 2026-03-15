@@ -52,7 +52,7 @@ int main() {
         size_t logsz=0;
         clGetProgramBuildInfo(prog, devs[0], CL_PROGRAM_BUILD_LOG, 0, nullptr, &logsz);
         std::string log(logsz, '\0');
-        clGetProgramBuildInfo(prog, devs[0], CL_PROGRAM_BUILD_LOG, logsz, log.data(), nullptr);
+        clGetProgramBuildInfo(prog, devs[0], CL_PROGRAM_BUILD_LOG, logsz, (void*)log.data(), nullptr);
         std::cerr << "build log:\n" << log << "\n";
         die("clBuildProgram failed", err);
     }

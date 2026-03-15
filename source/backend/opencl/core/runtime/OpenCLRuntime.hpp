@@ -89,6 +89,7 @@ public:
     OpenCLRuntime &operator=(const OpenCLRuntime &) = delete;
 
     bool isSupportedFP16() const;
+    bool isSupportedImage() const;
     bool isDeviceSupportedLowPower() const;
     bool isSupportedDotInt8() const;
     bool isSupportedDotAccInt8() const;
@@ -213,6 +214,7 @@ private:
     uint32_t mUseRecordableQueueSize = 0;
     bool mSupportRecordQueue = false;
     bool mIsSupportedFP16 = false;
+    bool mIsSupportedImage = true;
     bool mIsDeviceSupportedLowPower = false;
     bool mSupportDotInt8 = false;
     bool mSupportDotAccInt8 = false;

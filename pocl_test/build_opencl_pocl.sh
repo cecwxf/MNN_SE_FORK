@@ -24,19 +24,18 @@ cmake "${ROOT_DIR}" \
   -DMNN_BUILD_TOOLS=ON \
   -DMNN_BUILD_CONVERTER=OFF \
   -DMNN_BUILD_DEMO=OFF \
-  -DMNN_USE_SYSTEM_LIB=OFF \
   -DMNN_BUILD_POCL_TEST=ON
 
-ninja -j"$(nproc)" MNN pocl_smoke run_mnn_opencl run_mnn_opencl_model
+ninja -j"$(nproc)" MNN MNN_CL pocl_smoke run_mnn_opencl run_mnn_opencl_model
 
-export LD_LIBRARY_PATH="${BUILD_DIR}:${LD_LIBRARY_PATH:-}"
+export LD_LIBRARY_PATH="${BUILD_DIR}/source/backend/opencl:${BUILD_DIR}:${LD_LIBRARY_PATH:-}"
 
 echo "\n[Run] pocl_smoke" 
-"${BUILD_DIR}/pocl_smoke" || true
+"${BUILD_DIR}/pocl_test/pocl_smoke" || true
 
 echo "\n[Run] run_mnn_opencl_model" 
 if [[ -f "${ROOT_DIR}/tiny_matmul_add.mnn" ]]; then
-  "${BUILD_DIR}/run_mnn_opencl_model" "${ROOT_DIR}/tiny_matmul_add.mnn" || true
+  "${BUILD_DIR}/pocl_test/run_mnn_opencl_model" "${ROOT_DIR}/tiny_matmul_add.mnn" || true
 else
   echo "Missing ${ROOT_DIR}/tiny_matmul_add.mnn (optional). See pocl_test/README.md to generate it."
 fi
