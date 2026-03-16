@@ -102,9 +102,12 @@ int main(int argc, const char* argv[]) {
     auto b = generater.B();
     auto g = generater.G();
 
-    MNN::Math::Matrix::print(a.get(), "A");
-    MNN::Math::Matrix::print(b.get(), "B");
-    MNN::Math::Matrix::print(g.get(), "G");
+    const bool dumpMatrices = (argc > 4 && 0 == strcmp(argv[4], "--dump-matrices"));
+    if (dumpMatrices) {
+        MNN::Math::Matrix::print(a.get(), "A");
+        MNN::Math::Matrix::print(b.get(), "B");
+        MNN::Math::Matrix::print(g.get(), "G");
+    }
     std::ostringstream sourceFileOstream;
     { sourceFileOstream << "winogradTransformSource" << unit << "_" << kernelSize << "_" << interp << ".cl"; }
     auto sourceFile = sourceFileOstream.str();
