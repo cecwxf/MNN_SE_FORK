@@ -90,21 +90,35 @@ inline void _printFloat(ostream& output, float v) {
 }
 
 int main(int argc, const char* argv[]) {
+    if (argc < 3) {
+        MNN_PRINT("Usage: %s <unit> <kernelSize> [interp] [--dump-matrices]\n", argv[0]);
+        return 1;
+    }
+
     int unit       = atoi(argv[1]);
     int kernelSize = atoi(argv[2]);
     auto alpha     = unit + kernelSize - 1;
     float interp   = 0.5f;
-    if (argc > 3) {
-        interp = atof(argv[3]);
+    bool dumpMatrices = false;
+
+    for (int i = 3; i < argc; ++i) {
+        if (0 == strcmp(argv[i], "--dump-matrices")) {
+            dumpMatrices = true;
+        } else {
+            interp = atof(argv[i]);
+        }
     }
+
     MNN::Math::WinogradGenerater generater(unit, kernelSize, interp);
     auto a = generater.A();
     auto b = generater.B();
     auto g = generater.G();
 
-    MNN::Math::Matrix::print(a.get(), "A");
-    MNN::Math::Matrix::print(b.get(), "B");
-    MNN::Math::Matrix::print(g.get(), "G");
+    if (dumpMatrices) {
+        MNN::Math::Matrix::print(a.get(), "A");
+        MNN::Math::Matrix::print(b.get(), "B");
+        MNN::Math::Matrix::print(g.get(), "G");
+    }
     std::ostringstream sourceFileOstream;
     { sourceFileOstream << "winogradTransformSource" << unit << "_" << kernelSize << "_" << interp << ".cl"; }
     auto sourceFile = sourceFileOstream.str();
