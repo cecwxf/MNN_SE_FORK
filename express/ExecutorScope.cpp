@@ -20,6 +20,9 @@ typedef std::shared_ptr<Express::Executor> ExecutorRef;
 #include <pthread.h>
 static pthread_key_t gKey;
 static std::once_flag gInitFlag;
+static void _releaseExecutorScope(void* scope) {
+    delete static_cast<Scope<ExecutorRef>*>(scope);
+}
 #else
 thread_local static std::once_flag gInitFlag;
 thread_local static Scope<ExecutorRef>* g_executor_scope = nullptr;
@@ -29,7 +32,7 @@ static Scope<ExecutorRef>* _getGlobalScope() {
     std::call_once(gInitFlag,
                    [&]() {
 #if TARGET_OS_IPHONE
-        pthread_key_create(&gKey, NULL);
+        pthread_key_create(&gKey, _releaseExecutorScope);
 #else
         thread_local static Scope<ExecutorRef> initValue;
         g_executor_scope = &initValue;
